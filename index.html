@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Фундамент Мастер — Обзор функционала приложения</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f2ef;
+      --surface: #ffffff;
+      --ink: #161616;
+      --muted: #6b6a66;
+      --line: #e2e0db;
+      --frame: #161616;
+      --chip: #e9e7e2;
+      --chip-hover: #dedad4;
+      --accent: #161616;
+      --font: 'Onest', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #111111;
+      --surface: #1b1b1b;
+      --ink: #f2f1ee;
+      --muted: #9a9893;
+      --line: #2c2c2b;
+      --frame: #2c2c2b;
+      --chip: #242423;
+      --chip-hover: #323230;
+      --accent: #f2f1ee;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      overflow: hidden;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    /* Верхняя панель в стиле Фундамент */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--ink);
+      color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      color: var(--ink);
+      background: var(--chip);
+    }
+
+    .nav-tab.active {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .nav-tab .badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--chip);
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    /* Контейнер презентации */
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      padding-top: 60px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 36px 48px 48px;
+      display: flex;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      z-index: 2;
+    }
+
+    .slide-grid {
+      max-width: 1240px;
+      width: 100%;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    /* Текстовая колонка */
+    .info-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section-pill {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--chip);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .slide-title {
+      font-size: 36px;
+      line-height: 1.16;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .slide-desc {
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 580px;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .feature-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: border-color 0.15s ease;
+    }
+
+    .feature-item:hover {
+      border-color: var(--ink);
+    }
+
+    .feature-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--chip);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .feature-text {
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    /* Колонка телефона и карусели скринов */
+    .preview-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Панель переключения скринов (крутилка скринов) */
+    .screen-rotator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 6px 10px;
+      border-radius: 999px;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .screen-rotator::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen-rotator-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--chip);
+      border: none;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .screen-rotator-btn:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    .screen-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .screen-chip {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .screen-chip:hover {
+      color: var(--ink);
+    }
+
+    .screen-chip.active {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    /* Мокап смартфона в стиле Фундамент */
+    .phone-container {
+      position: relative;
+      width: 320px;
+      height: 640px;
+      border-radius: 36px;
+      border: 8px solid var(--frame);
+      background: var(--frame);
+      box-shadow: 0 20px 48px -18px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Динамический остров / челка */
+    .phone-island {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Скроллящаяся область скрина */
+    .phone-screen-viewport {
+      width: 100%;
+      height: 100%;
+      border-radius: 28px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,0,0,0.2) transparent;
+      background: #ffffff;
+      position: relative;
+    }
+
+    .phone-screen-viewport::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .phone-screen-viewport::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.25);
+      border-radius: 4px;
+    }
+
+    .phone-screen-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+
+    .phone-hint {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .phone-hint svg {
+      opacity: 0.7;
+    }
+
+    /* Нижняя навигация */
+    .footer-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 8px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+      z-index: 100;
+    }
+
+    .slide-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--chip);
+      border: none;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .slide-nav-btn:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    .slide-dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slide-dot.active {
+      width: 22px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .slide-counter {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Мобильная адаптивность */
+    @media (max-width: 960px) {
+      .header {
+        padding: 0 16px;
+      }
+      .nav-tabs {
+        display: none;
+      }
+      .slide {
+        padding: 24px 16px 80px;
+      }
+      .slide-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .phone-container {
+        width: 280px;
+        height: 560px;
+      }
+      .slide-title {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <!-- Шапка -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 9h18M3 15h18M9 3v6M15 9v6M9 15v6"/>
+        </svg>
+      </div>
+      <span>Фундамент Мастер</span>
+    </div>
+
+    <!-- Вкладки разделов функционала -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="goToSlide(0)">Обзор <span class="badge">01</span></button>
+      <button class="nav-tab" onclick="goToSlide(1)">Объекты и этапы <span class="badge">02</span></button>
+      <button class="nav-tab" onclick="goToSlide(2)">Сметы и калькулятор <span class="badge">03</span></button>
+      <button class="nav-tab" onclick="goToSlide(3)">Договоры и SMS-подпись <span class="badge">04</span></button>
+      <button class="nav-tab" onclick="goToSlide(4)">Учет финансов <span class="badge">05</span></button>
+      <button class="nav-tab" onclick="goToSlide(5)">Кабинет клиента <span class="badge">06</span></button>
+      <button class="nav-tab" onclick="goToSlide(6)">Визитка и отзывы <span class="badge">07</span></button>
+    </nav>
+
+    <div class="header-actions">
+      <button class="btn" onclick="toggleTheme()" title="Переключить тему">
+        <span id="themeLabel">Тёмная</span>
+      </button>
+      <a href="http://localhost:3000/m" target="_blank" class="btn btn-primary">
+        В приложение
+      </a>
+    </div>
+  </header>
+
+  <!-- Слайды обзора функционала -->
+  <main class="deck">
+
+    <!-- 01: ОБЗОР -->
+    <section class="slide active" data-index="0">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Мобильное рабочее место мастера</div>
+          <h1 class="slide-title">Функционал приложения для частного мастера</h1>
+          <p class="slide-desc">
+            Все процессы стройки и ремонта в одном телефоне: расчет смет по размерам комнат, официальные договоры с SMS-подписью, учет этапов, оплат и расходов по объектам.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Быстрые сметы за 2 минуты</div>
+                <div class="feature-text">Калькулятор по размерам комнат, готовая база расценок и моментальная ссылка заказчику.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Договор с юридической силой (63-ФЗ)</div>
+                <div class="feature-text">Подписание договора и промежуточных актов кодом из SMS без бумаг и принтеров.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Учет денег и чистой прибыли</div>
+                <div class="feature-text">Фиксация авансов, оплат по этапам, чеков на материалы и остатка долга заказчика.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">100% Офлайн-режим и PWA</div>
+                <div class="feature-text">Приложение ставится на экран телефона в один клик и работает в цоколях и на объектах без связи.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <!-- Крутилка скринов -->
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(0, -1)" aria-label="Предыдущий экран">‹</button>
+            <div class="screen-tabs" id="tabs-0">
+              <button class="screen-chip active" onclick="setScreen(0, 0)">Объекты</button>
+              <button class="screen-chip" onclick="setScreen(0, 1)">Смета</button>
+              <button class="screen-chip" onclick="setScreen(0, 2)">Визитка</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(0, 1)" aria-label="Следующий экран">›</button>
+          </div>
+
+          <!-- Мокап телефона -->
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-0">
+              <img class="phone-screen-img" id="img-0" src="screens/objects.jpg" alt="Экран приложения">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02: ОБЪЕКТЫ И ЭТАПЫ -->
+    <section class="slide" data-index="1">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Объекты и этапы</div>
+          <h2 class="slide-title">Контроль объектов, сроков и выполнения</h2>
+          <p class="slide-desc">
+            Все текущие и завершенные объекты на одном экране. Каждый объект разбит на этапы с датами, суммами и прикрепленными контактами клиента.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Список объектов со статусами и суммами</div>
+                <div class="feature-text">Наглядно видно адрес, стоимость работ, сколько уже получено и сколько осталось до закрытия объекта.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Карточка объекта и разбивка на этапы</div>
+                <div class="feature-text">Черновой этап, электрика, сантехника, чистовая отделка. Статусы «в работе», «сдано», «оплачено».</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Календарь занятости мастера</div>
+                <div class="feature-text">Наглядный график по дням: заезды на объекты, доставка материалов и встречи с заказчиками.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">Итоговое закрытие объекта</div>
+                <div class="feature-text">Финальный перерасчет допработ, фиксация сдачи и автоматическое формирование запроса на отзыв.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(1, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-1">
+              <button class="screen-chip active" onclick="setScreen(1, 0)">Все объекты</button>
+              <button class="screen-chip" onclick="setScreen(1, 1)">Карточка объекта</button>
+              <button class="screen-chip" onclick="setScreen(1, 2)">Завершенный</button>
+              <button class="screen-chip" onclick="setScreen(1, 3)">Календарь</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(1, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-1">
+              <img class="phone-screen-img" id="img-1" src="screens/objects.jpg" alt="Список объектов">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03: СМЕТЫ И КАЛЬКУЛЯТОР -->
+    <section class="slide" data-index="2">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Сметы и расчеты</div>
+          <h2 class="slide-title">Калькулятор по размерам и смета за 2 минуты</h2>
+          <p class="slide-desc">
+            Составление подробных смет прямо на объекте во время замера. Больше не нужно считать площади на бумаге и тратить часы за Excel по вечерам.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Калькулятор комнат</div>
+                <div class="feature-text">Вводите длину, ширину и высоту стен — площади полов, стен и потолков рассчитываются автоматически.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Шаблоны типовых объектов</div>
+                <div class="feature-text">Готовые наборы работ: ванная комната, санузел, квартира под ключ, предчистовая отделка.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Справочник личных расценок</div>
+                <div class="feature-text">Храните свои цены за м², погонный метр или точку. Цены подставляются в смету в один клик.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">Отправка сметы заказчику</div>
+                <div class="feature-text">Ссылка отправляется в WhatsApp или Telegram. Заказчик видит понятный интерактивный расчет без установки приложений.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(2, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-2">
+              <button class="screen-chip active" onclick="setScreen(2, 0)">Калькулятор</button>
+              <button class="screen-chip" onclick="setScreen(2, 1)">Готовая смета</button>
+              <button class="screen-chip" onclick="setScreen(2, 2)">Прайс-лист</button>
+              <button class="screen-chip" onclick="setScreen(2, 3)">Шаблоны</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(2, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-2">
+              <img class="phone-screen-img" id="img-2" src="screens/calc.jpg" alt="Калькулятор по размерам">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04: ДОГОВОРЫ И SMS-ПОДПИСЬ -->
+    <section class="slide" data-index="3">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Договоры и акты</div>
+          <h2 class="slide-title">Юридический договор с подписью кодом из SMS</h2>
+          <p class="slide-desc">
+            Официальное оформление отношений без бумаги, принтеров и разъездов. Защита мастера от необоснованных претензий и задержек оплат.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Готовые проверенные шаблоны договоров</div>
+                <div class="feature-text">Договор подряда с четкими сроками, этапами выплат, порядком согласования допработ и зоной ответственности.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Подписание по SMS по закону 63-ФЗ</div>
+                <div class="feature-text">Заказчик переходит по защищенной ссылке, читает условия и подтверждает подписание кодом из SMS (простая электронная подпись).</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Промежуточные акты выполненных работ</div>
+                <div class="feature-text">Сдали этап — акт отправлен на подпись в один клик. Подписанный акт подтверждает отсутствие претензий.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">База клиентов и история сделок</div>
+                <div class="feature-text">Карточки всех клиентов: телефоны, адреса, прикрепленные сметы, подписанные документы и статусы оплат.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(3, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-3">
+              <button class="screen-chip active" onclick="setScreen(3, 0)">Договор</button>
+              <button class="screen-chip" onclick="setScreen(3, 1)">SMS-подпись</button>
+              <button class="screen-chip" onclick="setScreen(3, 2)">Реестр договоров</button>
+              <button class="screen-chip" onclick="setScreen(3, 3)">Клиенты</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(3, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-3">
+              <img class="phone-screen-img" id="img-3" src="screens/contract.jpg" alt="Договор мастера">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05: УЧЕТ ФИНАНСОВ -->
+    <section class="slide" data-index="4">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Деньги и платежи</div>
+          <h2 class="slide-title">Прозрачный учет авансов, чеков и остатка</h2>
+          <p class="slide-desc">
+            Полный контроль финансового потока по каждому объекту. Вы всегда точно знаете, сколько внесено, сколько потрачено на материал и сколько должен заказчик.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Учет входящих оплат</div>
+                <div class="feature-text">Фиксация наличных и переводов с разбивкой по этапам и авансам. Суммы сразу уменьшают остаток долга.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Расходы по объекту и чеки</div>
+                <div class="feature-text">Внесение чеков за материалы, расходники, доставку и субподрядчиков с фотографиями чеков.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Расчет чистой прибыли мастера</div>
+                <div class="feature-text">Автоматический подсчет рентабельности объекта: доход минус фактические расходы мастера.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">Напоминания о платежах</div>
+                <div class="feature-text">Уведомления о подошедших сроках расчета за сданные этапы без неловких звонков.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(4, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-4">
+              <button class="screen-chip active" onclick="setScreen(4, 0)">Платежи</button>
+              <button class="screen-chip" onclick="setScreen(4, 1)">Объекты</button>
+              <button class="screen-chip" onclick="setScreen(4, 2)">Сданный объект</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(4, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-4">
+              <img class="phone-screen-img" id="img-4" src="screens/payment.jpg" alt="Экран учета финансов">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06: КАБИНЕТ КЛИЕНТА -->
+    <section class="slide" data-index="5">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Портал заказчика</div>
+          <h2 class="slide-title">Что видит клиент со своего смартфона</h2>
+          <p class="slide-desc">
+            Клиент получает персональную ссылку и видит ход работ без необходимости регистрироваться или устанавливать программы.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Интерактивная смета заказчика</div>
+                <div class="feature-text">Понятная смета с разбивкой по комнатам и видам работ. Заказчик видит, за что именно он платит.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Отчеты и фото выполненных работ</div>
+                <div class="feature-text">Фиксация скрытых работ: разводка труб, электрика, гидроизоляция прямо в ленте объекта.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Прозрачный баланс расчетов</div>
+                <div class="feature-text">Заказчик видит, сколько уже оплачено, какие этапы приняты и точный остаток к оплате.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">Подписание документов в браузере</div>
+                <div class="feature-text">Возможность ознакомиться с договором и подтвердить его в удобное время с любого устройства.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(5, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-5">
+              <button class="screen-chip active" onclick="setScreen(5, 0)">Смета клиента</button>
+              <button class="screen-chip" onclick="setScreen(5, 1)">Отчет дня</button>
+              <button class="screen-chip" onclick="setScreen(5, 2)">Визитка</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(5, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-5">
+              <img class="phone-screen-img" id="img-5" src="screens/client-estimate.jpg" alt="Смета клиента">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07: ВИЗИТКА И РЕПУТАЦИЯ -->
+    <section class="slide" data-index="6">
+      <div class="slide-grid">
+        <div class="info-col">
+          <div class="section-pill">Раздел: Профиль и репутация</div>
+          <h2 class="slide-title">Цифровая визитка, отзывы и юридические данные</h2>
+          <p class="slide-desc">
+            Готовая персональная страница мастера для привлечения заказов с Avito, Telegram и сарафанного радио.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-num">1</div>
+              <div>
+                <div class="feature-title">Публичная визитка мастера</div>
+                <div class="feature-text">Специализация, стаж, фото завершенных объектов, ориентировочные цены и контакты для связи.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">2</div>
+              <div>
+                <div class="feature-title">Подтвержденные отзывы клиентов</div>
+                <div class="feature-text">Отзывы собираются после подписания актов сдачи объекта — клиенты доверяют им больше, чем отзывам в мессенджерах.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">3</div>
+              <div>
+                <div class="feature-title">Юридические реквизиты (Самозанятый / ИП)</div>
+                <div class="feature-text">Паспортные данные и реквизиты счета сохраняются в зашифрованном виде и автоматически подставляются в договоры.</div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-num">4</div>
+              <div>
+                <div class="feature-title">Приглашение коллег и бонусы</div>
+                <div class="feature-text">Реферальная программа: дополнительные лимиты и бесплатный доступ за приглашение знакомых мастеров.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-col">
+          <div class="screen-rotator">
+            <button class="screen-rotator-btn" onclick="rotateScreen(6, -1)">‹</button>
+            <div class="screen-tabs" id="tabs-6">
+              <button class="screen-chip active" onclick="setScreen(6, 0)">Визитка</button>
+              <button class="screen-chip" onclick="setScreen(6, 1)">Отзывы</button>
+              <button class="screen-chip" onclick="setScreen(6, 2)">Профиль</button>
+              <button class="screen-chip" onclick="setScreen(6, 3)">Реквизиты</button>
+              <button class="screen-chip" onclick="setScreen(6, 4)">Бонусы</button>
+            </div>
+            <button class="screen-rotator-btn" onclick="rotateScreen(6, 1)">›</button>
+          </div>
+
+          <div class="phone-container">
+            <div class="phone-island"></div>
+            <div class="phone-screen-viewport" id="viewport-6">
+              <img class="phone-screen-img" id="img-6" src="screens/card.jpg" alt="Визитка мастера">
+            </div>
+          </div>
+          <div class="phone-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Прокрутите экран внутри телефона
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Нижняя панель навигации по слайдам -->
+  <footer class="footer-bar">
+    <button class="slide-nav-btn" onclick="prevSlide()" title="Предыдущий слайд (←)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="slide-dots" id="slideDots"></div>
+    <span class="slide-counter" id="slideCounter">01 / 07</span>
+    <button class="slide-nav-btn" onclick="nextSlide()" title="Следующий слайд (→)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </footer>
+
+  <script>
+    // Каталог экранов для каждого слайда
+    const slideScreens = [
+      // Слайд 0: Обзор
+      [
+        { file: 'screens/objects.jpg', label: 'Объекты' },
+        { file: 'screens/estimate.jpg', label: 'Смета' },
+        { file: 'screens/card.jpg', label: 'Визитка' }
+      ],
+      // Слайд 1: Объекты и этапы
+      [
+        { file: 'screens/objects.jpg', label: 'Все объекты' },
+        { file: 'screens/object.jpg', label: 'Карточка объекта' },
+        { file: 'screens/object-done.jpg', label: 'Завершенный' },
+        { file: 'screens/calendar.jpg', label: 'Календарь' }
+      ],
+      // Слайд 2: Сметы и калькулятор
+      [
+        { file: 'screens/calc.jpg', label: 'Калькулятор' },
+        { file: 'screens/estimate.jpg', label: 'Готовая смета' },
+        { file: 'screens/prices.jpg', label: 'Прайс-лист' },
+        { file: 'screens/templates.jpg', label: 'Шаблоны' }
+      ],
+      // Слайд 3: Договоры и SMS
+      [
+        { file: 'screens/contract.jpg', label: 'Договор' },
+        { file: 'screens/sign.jpg', label: 'SMS-подпись' },
+        { file: 'screens/contracts.jpg', label: 'Реестр договоров' },
+        { file: 'screens/clients.jpg', label: 'Клиенты' }
+      ],
+      // Слайд 4: Финансы
+      [
+        { file: 'screens/payment.jpg', label: 'Платежи' },
+        { file: 'screens/objects.jpg', label: 'Объекты' },
+        { file: 'screens/object-done.jpg', label: 'Сданный объект' }
+      ],
+      // Слайд 5: Клиент
+      [
+        { file: 'screens/client-estimate.jpg', label: 'Смета клиента' },
+        { file: 'screens/report.jpg', label: 'Отчет дня' },
+        { file: 'screens/card.jpg', label: 'Визитка' }
+      ],
+      // Слайд 6: Профиль и репутация
+      [
+        { file: 'screens/card.jpg', label: 'Визитка' },
+        { file: 'screens/reviews.jpg', label: 'Отзывы' },
+        { file: 'screens/profile.jpg', label: 'Профиль' },
+        { file: 'screens/profile-legal.jpg', label: 'Реквизиты' },
+        { file: 'screens/invite.jpg', label: 'Бонусы' }
+      ]
+    ];
+
+    // Текущий выбранный экран на каждом слайде
+    const currentScreenIdx = [0, 0, 0, 0, 0, 0, 0];
+
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const slideDots = document.getElementById('slideDots');
+    const slideCounter = document.getElementById('slideCounter');
+
+    // Построение точек слайдов
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div');
+      dot.className = `slide-dot ${idx === 0 ? 'active' : ''}`;
+      dot.addEventListener('click', () => goToSlide(idx));
+      slideDots.appendChild(dot);
+    });
+
+    function updateSlide() {
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === currentSlide));
+      navTabs.forEach((t, idx) => t.classList.toggle('active', idx === currentSlide));
+      
+      const dots = document.querySelectorAll('.slide-dot');
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === currentSlide));
+
+      slideCounter.textContent = `${String(currentSlide + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+    }
+
+    function goToSlide(idx) {
+      if (idx >= 0 && idx < totalSlides) {
+        currentSlide = idx;
+        updateSlide();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    // Крутилка экранов внутри мокапа телефона
+    function setScreen(slideIdx, screenIdx) {
+      const screens = slideScreens[slideIdx];
+      if (!screens || !screens[screenIdx]) return;
+      currentScreenIdx[slideIdx] = screenIdx;
+
+      // Обновляем картинку
+      const img = document.getElementById(`img-${slideIdx}`);
+      const viewport = document.getElementById(`viewport-${slideIdx}`);
+      if (img) {
+        img.src = screens[screenIdx].file;
+        if (viewport) {
+          viewport.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      // Обновляем активный чип
+      const container = document.getElementById(`tabs-${slideIdx}`);
+      if (container) {
+        const chips = container.querySelectorAll('.screen-chip');
+        chips.forEach((c, idx) => c.classList.toggle('active', idx === screenIdx));
+      }
+    }
+
+    function rotateScreen(slideIdx, direction) {
+      const screens = slideScreens[slideIdx];
+      if (!screens) return;
+      let nextIdx = currentScreenIdx[slideIdx] + direction;
+      if (nextIdx < 0) nextIdx = screens.length - 1;
+      if (nextIdx >= screens.length) nextIdx = 0;
+      setScreen(slideIdx, nextIdx);
+    }
+
+    // Клавиатура: стрелки слайдов
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key === 'ArrowUp') {
+        rotateScreen(currentSlide, -1);
+      } else if (e.key === 'ArrowDown') {
+        rotateScreen(currentSlide, 1);
+      }
+    });
+
+    // Переключение светлой / тёмной темы в цветах Фундамент
+    function toggleTheme() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('themeLabel').textContent = isDark ? 'Тёмная' : 'Светлая';
+    }
+  </script>
+</body>
+</html>
